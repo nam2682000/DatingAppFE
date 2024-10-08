@@ -1,38 +1,52 @@
-import { defineStore } from 'pinia'
+// stores/authStore.ts
+import { defineStore } from 'pinia';
+import {jwtDecode} from 'jwt-decode';
 
 // Định nghĩa interface cho User
-interface User {
-  userName: string
-  userId: string
-  role: string
-  token: string
+interface UserToken {
+  sub: string;
+  userId: string;
+  role: string;
+  exp: number;
+  aud: string;
+  iss: string;
+  jti: string;
 }
 
-// Sử dụng Pinia defineStore
 export const useAuthStore = defineStore('auth', {
-  // Khai báo state với kiểu rõ ràng
   state: () => ({
     token: localStorage.getItem('token') || null,
-    user: null as User | null // Gán kiểu dữ liệu rõ ràng cho user
+    user: null as UserToken | null,
   }),
 
-  // Các hành động (actions)
   actions: {
-    login(userData: User) {
-      // Dùng kiểu `User` cho dữ liệu người dùng
-      this.token = userData.token // Giả lập đăng nhập, lưu token
-      localStorage.setItem('token', userData.token)
-      this.user = userData // Gán dữ liệu người dùng vào state
+    login(tokenString: string) {
+      try {
+        const token = tokenString;
+        const userDecoded = jwtDecode<UserToken>(token);
+
+        localStorage.setItem('token', token);
+        this.token = token;
+        this.user = userDecoded;
+      } catch (error) {
+        console.error('Lỗi khi decode token:', error);
+      }
     },
     logout() {
-      this.token = null
-      this.user = null // Đặt lại trạng thái user
-      localStorage.removeItem('token')
-    }
+      this.token = null;
+      this.user = null;
+      localStorage.removeItem('token');
+    },
   },
 
-  // Các getter
   getters: {
-    isLoggedIn: (state) => !!state.token // Trả về true nếu có token
-  }
-})
+    isLoggedIn: (state) => !!state.token,
+    isTokenExpired: (state) => {
+      if (state.user && state.user.exp) {
+        const currentTime = Math.floor(Date.now() / 1000);
+        return state.user.exp < currentTime;
+      }
+      return true;
+    },
+  },
+});

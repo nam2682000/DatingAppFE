@@ -1,7 +1,7 @@
 <template>
   <div class="login-container">
     <el-card class="login-card" shadow="hover">
-      <h2 class="login-title">Login</h2>
+      <h2 class="title">Login</h2>
       <el-form :model="loginForm" status-icon :rules="rules" ref="loginFormRef">
         <!-- Username Field -->
         <el-form-item prop="userName">
@@ -27,10 +27,18 @@
           <el-button type="primary" @click="handleLogin" class="login-btn" round>Login</el-button>
         </el-form-item>
 
+        <div class="flex justify-between">
+          <el-form-item>
+            <el-link href="/signup" type="primary" class="forgot-passWord">Signup</el-link>
+          </el-form-item>
+          
+          <el-form-item>
+            <el-link href="#" type="primary" class="forgot-passWord">Forgot Password?</el-link>
+          </el-form-item>
+          
+        </div>
         <!-- Forgot Password Link -->
-        <el-form-item>
-          <el-link href="#" type="primary" class="forgot-passWord">Forgot Password?</el-link>
-        </el-form-item>
+        
       </el-form>
     </el-card>
   </div>
@@ -39,13 +47,19 @@
 <script setup lang="ts">
 import { reactive, ref } from 'vue'
 import { ElMessage, type FormInstance } from 'element-plus'
-import { login } from '@/services/authService'
 import { useAuthStore } from '@/stores/authStore'
+import { useRoute, useRouter } from 'vue-router';
+import { login } from '@/services/authService';
+import type { LoginRequest } from '@/models/auth';
 
+
+const router = useRouter();
+const route = useRoute();
 // Khai báo biến form
-const loginForm = reactive({
+const loginForm = reactive<LoginRequest>({
   userName: '',
-  passWord: ''
+  passWord: '',
+  rememberMe: false
 })
 
 // Form validation rules
@@ -68,12 +82,14 @@ const handleLogin = () => {
   const authStore = useAuthStore()
   loginFormRef.value?.validate(async (valid: boolean) => {
     if (valid) {
-      const userData = await login(loginForm.userName, loginForm.passWord, true)
-      console.log('userData', userData)
-
-      if (userData) authStore.login(userData)
-      // Thực hiện đăng nhập (giả lập)
-      ElMessage.success('Login successful!')
+      const userData = await login(loginForm)
+      if (userData) 
+      {
+        authStore.login(userData)
+        ElMessage.success('Login successful!');
+        const returnUrl = route.query.returnUrl as string || '/home';
+        router.push(returnUrl);
+      }
     } else {
       ElMessage.error('Invalid form, please check your input.')
     }
@@ -96,15 +112,6 @@ const handleLogin = () => {
   padding: 30px;
   border-radius: 10px;
   background-color: #fff;
-}
-
-/* Title styling */
-.login-title {
-  text-align: center;
-  font-size: 24px;
-  font-weight: bold;
-  margin-bottom: 20px;
-  color: #409eff;
 }
 
 /* Button styling */

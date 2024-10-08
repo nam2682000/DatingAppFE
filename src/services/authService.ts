@@ -1,24 +1,50 @@
 // services/authService.ts
-import axiosInstance from './axiosConfig'
+import type { LoginRequest, UserRegisterRequest } from '@/models/auth';
+import axiosInstance from './axiosConfig';
 
-// Hàm xử lý đăng nhập
-export const login = async (userName: string, passWord: string, rememberMe: boolean) => {
-  const response = await axiosInstance.post('/Auth/login', {
-    userName,
-    passWord,
-    rememberMe
-  })
-  return response.data // Trả về dữ liệu nếu đăng nhập thành công
-}
 
-// Hàm xử lý đăng xuất
-export const logout = async () => {
-  const response = await axiosInstance.post('/api/logout')
-  return response.data // Trả về kết quả của yêu cầu logout
-}
+export const login = async (
+  model: LoginRequest
+): Promise<string> => {
+  try {
+    const response = await axiosInstance.post<string>('/Auth/login', model);
+    return response.data; // Trả về dữ liệu nếu đăng nhập thành công
+  } catch (error) {
+    console.error('Login error:', error);
+    throw new Error('Login failed. Please check your credentials.');
+  }
+};
 
-// Hàm xử lý đăng ký
-export const register = async (userData: any) => {
-  const response = await axiosInstance.post('/api/register', userData)
-  return response.data // Trả về dữ liệu nếu đăng ký thành công
-}
+
+export const logout = async (
+): Promise<boolean> => {
+  try {
+    const response = await axiosInstance.post<boolean>('/api/logout');
+    return response.data; // Trả về dữ liệu nếu đăng nhập thành công
+  } catch (error) {
+    console.error('Login error:', error);
+    throw new Error('Logout failed. Please check your credentials.');
+  }
+};
+
+
+export const register = async (
+  model: UserRegisterRequest
+): Promise<boolean> => {
+  try {
+    const response = await axiosInstance.post<boolean>('/Auth/register', model);
+    return response.data; // Trả về dữ liệu nếu đăng nhập thành công
+  } catch (error) {
+    console.error('Login error:', error);
+    throw new Error('Login failed. Please check your credentials.');
+  }
+};
+
+
+
+
+
+
+
+
+

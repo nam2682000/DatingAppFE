@@ -4,6 +4,11 @@ import path from 'path'
 
 export default defineConfig({
   plugins: [vue()],
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './src') // Alias @ trỏ về thư mục src
+    }
+  },
   server: {
     proxy: {
       '/api': {
@@ -13,9 +18,4 @@ export default defineConfig({
       }
     }
   },
-  resolve: {
-    alias: {
-      '@': path.resolve(__dirname, './src') // Alias @ trỏ về thư mục src
-    }
-  }
 })

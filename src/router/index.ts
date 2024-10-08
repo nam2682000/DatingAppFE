@@ -6,35 +6,52 @@ const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
+      path: '/login',
+      name: 'login',
+      component: () => import('@/components/Auth/LoginForm.vue')
+    },
+    {
+      path: '/signup',
+      name: 'signup',
+      component: () => import('@/components/Auth/SignupForm.vue')
+    },
+    {
       path: '/',
       name: 'home',
+      meta: { requiresAuth: true },
+      component: HomeView
+    },
+    {
+      path: '/home',
+      name: 'homeAlias',
+      meta: { requiresAuth: true },
       component: HomeView
     },
     {
       path: '/about',
       name: 'about',
       meta: { requiresAuth: true },
-      // route level code-splitting
-      // this generates a separate chunk (About.[hash].js) for this route
-      // which is lazy-loaded when the route is visited.
-      component: () => import('../views/AboutView.vue')
+      component: () => import('@/views/AboutView.vue'),
     },
     {
-      path: '/login',
-      name: 'login',
-      component: () => import('../components/Login/Login.vue')
-    }
+      path: '/profile',
+      name: 'profile',
+      meta: { requiresAuth: true },
+      component: () => import('@/components/User/UserProfile.vue'),
+    },
+    
   ]
 })
 
+
 // Navigation guard để kiểm tra xem người dùng có token hay không
 router.beforeEach((to, from, next) => {
-  const authStore = useAuthStore()
+  const authStore = useAuthStore();
   if (to.meta.requiresAuth && !authStore.isLoggedIn) {
-    next('/login') // Chuyển đến trang đăng nhập nếu chưa đăng nhập
+    next({ name: 'login', query: { returnUrl: to.fullPath } }); // Chuyển đến trang đăng nhập nếu chưa đăng nhập
   } else {
-    next() // Tiếp tục đi đến route yêu cầu
+    next(); // Tiếp tục đi đến route yêu cầu
   }
-})
+});
 
 export default router
