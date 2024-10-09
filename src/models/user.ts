@@ -1,25 +1,50 @@
+import type { InterestResponse } from "./interest";
 // Define a type for GeoJsonPoint and GeoJson2DCoordinates if necessary
-export interface GeoJson2DCoordinates {
-    type: 'Point'; // Assuming it is a Point type
-    coordinates: [number, number]; // Assuming it's an array of [longitude, latitude]
-}
 
-export interface GeoJsonPoint<T> {
-    type: string; // e.g., "Point"
-    coordinates: T;
-}
+export interface Role {
+    id: string;
+    roleName: string;
+  }
+  
+  interface Coordinates {
+    values: number[]; // longitude, latitude (based on the GeoJSON format)
+    x: number;       // Longitude
+    y: number;       // Latitude
+  }
+  
+  interface Location {
+    coordinates: Coordinates;
+    type: number; // GeoJSON point type
+    boundingBox?: any;
+    coordinateReferenceSystem?: any;
+    extraMembers?: any;
+  }
+  
+export interface UserProfileResponse {
+    username: string;
+    firstname: string;
+    lastname: string;
+    email: string;
+    gender: string;
+    role: Role;
+    dateOfBirth: string;   // ISO date string
+    location: Location | null;  // Location with GeoJSON format
+    lastActive: string;    // ISO date string
+    profilePicture?: string | null;  // Optional profile picture path
+    bio: string | null;    // Optional user bio
+    interests: InterestResponse[];   // Array of interest ids or names
+  }
 
 export interface UserProfileRequest {
-    username: string; // Required
-    firstname: string; // Required
-    lastname: string; // Required
-    email: string; // Required
-    dateOfBirth: string; // Required
-    gender: string; // Required
-    location?: GeoJsonPoint<GeoJson2DCoordinates>; // Optional
-    profilePicture?: string; // Optional - path to the profile picture
-    bio?: string; // Optional - personal description
-    interests?: string[]; // Optional - list of interests
-    latitude?: number; // Optional
-    longitude?: number; // Optional
+    username: string;
+    firstname: string;
+    lastname: string;
+    email: string;
+    dateOfBirth: Date;
+    gender: string;
+    profilePicture?: string | null; // Path to profile picture
+    bio?: string | null; // Personal description
+    interests?: string[] | null;
+    longitude?: number | null;
+    latitude?: number | null;
 }

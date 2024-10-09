@@ -20,13 +20,25 @@ export const useAuthStore = defineStore('auth', {
   }),
 
   actions: {
+    initializeAuth() {
+      const token = localStorage.getItem('token');
+      if (token) {
+        try {
+          const userDecoded = jwtDecode<UserToken>(token);
+          this.token = token;
+          this.user = userDecoded;
+        } catch (error) {
+          console.error('Lỗi khi decode token:', error);
+          this.logout(); // Xử lý nếu token không hợp lệ
+        }
+      }
+    },
     login(tokenString: string) {
       try {
-        const token = tokenString;
-        const userDecoded = jwtDecode<UserToken>(token);
+        const userDecoded = jwtDecode<UserToken>(tokenString);
 
-        localStorage.setItem('token', token);
-        this.token = token;
+        localStorage.setItem('token', tokenString);
+        this.token = tokenString;
         this.user = userDecoded;
       } catch (error) {
         console.error('Lỗi khi decode token:', error);

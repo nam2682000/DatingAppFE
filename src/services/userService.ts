@@ -1,12 +1,17 @@
 // services/userService.ts
 import axiosInstance from './axiosConfig'
-import type { UserProfileRequest } from '@/models/user'
+import type { UserProfileRequest, UserProfileResponse } from '@/models/user'
 
-// Hàm lấy thông tin người dùng
-export const getUserProfile = async () => {
-  const response = await axiosInstance.get('/user/my-profile')
-  return response
-}
+export const getUserProfile = async (): Promise<UserProfileResponse> => {
+  try {
+    const response = await axiosInstance.get<UserProfileResponse>('/user/my-profile');
+    return response.data;
+  } catch (error) {
+    console.error('Error:', error);
+    throw new Error('Login failed.');
+  }
+};
+
 
 export const updateUserProfile = async (
   model: UserProfileRequest

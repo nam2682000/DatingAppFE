@@ -50,20 +50,30 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 import { useAuthStore } from './stores/authStore'
 import { useRoute } from 'vue-router'
 
 
 const route = useRoute()
 // Khởi tạo auth store
-const authStore = useAuthStore()
+const authStore = useAuthStore();
 
 const activeIndex = ref(route.path)
 const handleSelect = (key: string, keyPath: string[]) => {
   console.log(key, keyPath)
 }
 
+
+onMounted(() => {
+  const authStore = useAuthStore();
+  authStore.initializeAuth(); // Khôi phục trạng thái từ localStorage
+  console.log(authStore.isTokenExpired)
+  if (authStore.isTokenExpired && authStore.isLoggedIn) {
+    authStore.logout();
+    window.location.href = '/login';
+  }
+});
 // Theo dõi sự thay đổi của route và cập nhật activeIndex
 watch(() => route.path, (newPath) => {
   console.log('newPath',newPath);

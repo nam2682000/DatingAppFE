@@ -7,6 +7,9 @@ export default {
     extend: {},      // Bạn có thể thêm các tùy chỉnh theme ở đây nếu cần
   },
   plugins: [],
+  "compilerOptions": {
+    "types": ["node"]
+  }
 }
 
 
