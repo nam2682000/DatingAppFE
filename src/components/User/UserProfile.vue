@@ -11,18 +11,18 @@
         :auto-upload="false"
       >
         <!-- Hiển thị avatar nếu có -->
-        <el-avatar
-          class=""
-          :size="200"
-          :src="avatarUrl || 'https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png'"
-        />
+        <el-avatar class="" :size="200" :src="avatarUrl || profileData.profilePicture" />
         <!-- Hiển thị icon Plus nếu chưa có ảnh -->
       </el-upload>
       <!-- Nút upload nếu đã chọn ảnh -->
       <el-button v-if="avatarUrl" type="primary" @click="uploadAvatar">Upload</el-button>
     </div>
 
-    <MapComponent v-if="!!profileData.username" :locationDefault="locationDefault" @update:locationName="handleLocationNameUpdate" />
+    <MapComponent
+      v-if="!!profileData.username"
+      :locationDefault="{ x: profileData.longitude, y: profileData.latitude }"
+      @update:location="handleLocationUpdate"
+    />
 
     <el-form-item label="Username" class="mt-5" prop="username">
       <el-input v-model="profileData.username" />
@@ -66,21 +66,21 @@
 
     <el-form-item label="Interests" prop="interests">
       <el-select
-        v-model="valueInterestSelect"
+        v-model="profileData.interests"
         multiple
         placeholder="Select options"
         style="width: 300px"
       >
         <el-option
           v-for="item in optionsInterest"
-          :key="item.interestName"
+          :key="item.id"
           :label="item.interestName"
-          :value="item.interestName"
+          :value="item.id"
         />
       </el-select>
     </el-form-item>
 
-    <el-form-item>
+    <el-form-item class="mb-5">
       <el-button type="primary" @click="updateProfile">Update Profile</el-button>
     </el-form-item>
   </el-form>
@@ -90,11 +90,12 @@
 import { ref, onMounted, reactive, watch } from 'vue'
 import { ElMessage } from 'element-plus'
 import { getUserProfile, updateUserProfile } from '@/services/userService'
-import type { UserProfileModel, UserProfileRequest, UserProfileResponse } from '@/models/user'
+import type { UserProfileRequest, UserProfileResponse } from '@/models/user'
 import { useAuthStore } from '@/stores/authStore'
 import MapComponent from '../Map/MapComponent.vue'
 import { getAllInterest } from '@/services/interestService'
 import type { InterestResponse } from '@/models/interest'
+import { userUploadAvatar } from '@/services/fileService'
 
 // Định nghĩa kiểu dữ liệu TypeScript cho model UserProfileRequest
 
@@ -107,37 +108,25 @@ const profileData = reactive<UserProfileRequest>({
   email: '',
   dateOfBirth: new Date(),
   gender: '',
-  profilePicture: '',
+  profilePicture: 'https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png',
   bio: '',
   interests: [],
   latitude: undefined,
   longitude: undefined
 })
 const optionsInterest = reactive<InterestResponse[]>([])
-const valueInterestSelect = ref([])
-const location = ref('') // Biến để lưu tên địa điểm
-const locationDefault = ref({ x: 0, y: 0 });
-
-const handleLocationNameUpdate = (newLocationName: any) => {
-  location.value = newLocationName // Cập nhật giá trị
-  console.log('newLocationName', location)
+const handleLocationUpdate = (newLocation: { x: number; y: number }) => {
+  profileData.latitude = newLocation.y
+  profileData.longitude = newLocation.x
 }
-
-watch(valueInterestSelect, async (newQuestion, oldQuestion) => {
-  console.log('newQuestion',newQuestion);
-  console.log('oldQuestion',oldQuestion);
-})
 // Hàm giả lập gọi API để lấy dữ liệu user (Bạn cần thay thế bằng API thực tế)
 const fetchUserData = async () => {
   try {
     const response = await getUserProfile() // API trả về dữ liệu người dùng
-    Object.assign(profileData, mapUserProfileResponseToRequest(response));
-    console.log('profileData',profileData);
-    locationDefault.value = {
-      x: profileData.longitude??0,
-      y: profileData.latitude??0
-    };
-    console.log('locationDefault',locationDefault);
+    Object.assign(profileData, mapUserProfileResponseToRequest(response))
+    console.log('profileData', profileData)
+    profileData.profilePicture =
+      'http://localhost:5176/uploads/50360ee9-d3b5-4666-9e8e-59934736c151/images2.jpeg'
   } catch (error) {
     ElMessage.error('Failed to load user data') // Thông báo lỗi nếu không tải được dữ liệu
   }
@@ -156,6 +145,7 @@ const fetchInterestData = async () => {
 // Hàm gọi API để update dữ liệu người dùng
 const updateProfile = async () => {
   try {
+    console.log('profileData', profileData)
     const response = await updateUserProfile(profileData) // Gửi dữ liệu cập nhật
     if (response) ElMessage.success('Profile updated successfully') // Thông báo thành công
   } catch (error) {
@@ -196,15 +186,15 @@ const handleAvatarChange = (file: any) => {
   reader.readAsDataURL(file.raw) // Đọc file để lấy URL hiển thị
 }
 
-const uploadAvatar = () => {
+const uploadAvatar = async () => {
   if (selectedFile.value) {
     // Thực hiện việc upload file lên server ở đây (giả lập API)
     console.log('Uploading file:', selectedFile.value)
-
-    // Giả lập quá trình upload và thông báo thành công
-    setTimeout(() => {
+    const filePath = await userUploadAvatar(selectedFile.value)
+    if (filePath) {
       ElMessage.success('Avatar đã được upload thành công!')
-    }, 1000)
+    }
+    // Giả lập quá trình upload và thông báo thành công
   } else {
     ElMessage.error('Vui lòng chọn ảnh trước khi upload!')
   }
@@ -216,9 +206,7 @@ const genderOptions = [
   { label: 'Female', value: 'Female' }
 ]
 
-function mapUserProfileResponseToRequest(
-  response: UserProfileResponse
-): UserProfileRequest {
+function mapUserProfileResponseToRequest(response: UserProfileResponse): UserProfileRequest {
   return {
     username: response.username,
     firstname: response.firstname,
@@ -228,13 +216,12 @@ function mapUserProfileResponseToRequest(
     gender: response.gender,
     profilePicture: response.profilePicture ?? null, // Null-coalescing for optional fields
     bio: response.bio ?? null,
-    interests: response.interests ? response.interests.map(i => i.interestName) : null, // Assuming Interest has a 'name' property
+    interests: response.interests ? response.interests.map((i) => i.interestName) : null, // Assuming Interest has a 'name' property
     longitude: response.location?.coordinates.x ?? null,
-    latitude: response.location?.coordinates.y ?? null, // Assuming coordinates in GeoJson2DCoordinates
-  };
+    latitude: response.location?.coordinates.y ?? null // Assuming coordinates in GeoJson2DCoordinates
+  }
 }
 </script>
-
 <style scoped>
 /* Thêm các kiểu tùy chỉnh cho form nếu cần */
 </style>

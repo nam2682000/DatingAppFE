@@ -1,5 +1,8 @@
 <template>
   <div id="map" style="height: 500px"></div>
+  <div class="text-center">
+    <el-button type="primary" @click="useLocation()">Use current location</el-button>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -24,7 +27,7 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['update:locationName'])
+const emit = defineEmits(['update:location'])
 onMounted(() => {
   console.log('props.locationDefault', props.locationDefault)
   map = L.map('map').setView([51.505, -0.09], 13) // Tọa độ mặc định
@@ -34,21 +37,50 @@ onMounted(() => {
   }).addTo(map)
 
   // Kiểm tra xem trình duyệt có hỗ trợ Geolocation không
+  useLocation(props.locationDefault.y, props.locationDefault.x)
+
+  // Thêm sự kiện click để chọn vị trí
+  map.on('click', async (event: any) => {
+    const userLocation: LatLngTuple = [event.latlng.lat, event.latlng.lng]
+    if (marker) {
+      map.removeLayer(marker)
+    }
+    // Thêm marker tại vị trí người dùng đã chọn
+    marker = L.marker(userLocation).addTo(map).bindPopup('Bạn đã chọn vị trí này!').openPopup()
+
+    // Lấy tên địa điểm cho vị trí đã chọn
+    const locationName = await getLocationName(userLocation[0], userLocation[1])
+    if (locationName) {
+      marker.bindPopup(`Vị trí bạn đã chọn: ${locationName}`).openPopup()
+      emit('update:location', { x: event.latlng.lng, y: event.latlng.lat })
+    }
+  })
+})
+
+onBeforeUnmount(() => {
+  if (map) {
+    map.remove()
+  }
+})
+
+const useLocation = (latitude?: number | null, longitude?: number | null) => {
   if (navigator.geolocation) {
+    if (marker) {
+      map.removeLayer(marker)
+    }
     navigator.geolocation.getCurrentPosition(
       async (position) => {
-        let lat: number = props.locationDefault.y || position.coords.latitude
-        let lng: number = props.locationDefault.x || position.coords.longitude
+        let lat: number = latitude == 0 || latitude == null ? position.coords.latitude : latitude
+        let lng: number =
+          longitude == 0 || longitude == null ? position.coords.longitude : longitude
         const userLocation: LatLngTuple = [lat, lng]
-
         map.setView(userLocation, 13)
         marker = L.marker(userLocation).addTo(map).bindPopup('Bạn đang ở đây!')
-
         // Lấy tên địa điểm
         const locationName = await getLocationName(lat, lng)
         if (locationName) {
           marker.bindPopup(`Bạn đang ở đây: ${locationName}`).openPopup()
-          emit('update:locationName', userLocation)
+          emit('update:location', { x: lng, y: lat })
         }
       },
       (error) => {
@@ -64,31 +96,7 @@ onMounted(() => {
   } else {
     alert('Trình duyệt không hỗ trợ Geolocation.')
   }
-
-  // Thêm sự kiện click để chọn vị trí
-  map.on('click', async (event: any) => {
-    const userLocation: LatLngTuple = [event.latlng.lat, event.latlng.lng]
-    if (marker) {
-      map.removeLayer(marker)
-    }
-    // Thêm marker tại vị trí người dùng đã chọn
-    marker = L.marker(userLocation).addTo(map).bindPopup('Bạn đã chọn vị trí này!').openPopup()
-
-    // Lấy tên địa điểm cho vị trí đã chọn
-    const locationName = await getLocationName(userLocation[0], userLocation[1])
-    if (locationName) {
-      marker.bindPopup(`Vị trí bạn đã chọn: ${locationName}`).openPopup()
-      emit('update:locationName', userLocation)
-    }
-  })
-})
-
-onBeforeUnmount(() => {
-  if (map) {
-    map.remove()
-  }
-})
-
+}
 // Hàm lấy tên địa điểm từ tọa độ
 const getLocationName = async (lat: number, lng: number) => {
   const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}`
