@@ -92,7 +92,7 @@ import { ElMessage } from 'element-plus'
 import { getUserProfile, updateUserProfile } from '@/services/userService'
 import type { UserProfileRequest, UserProfileResponse } from '@/models/user'
 import { useAuthStore } from '@/stores/authStore'
-import MapComponent from '../Map/MapComponent.vue'
+import MapComponent from '../Map/MapComponent.vue' 
 import { getAllInterest } from '@/services/interestService'
 import type { InterestResponse } from '@/models/interest'
 import { userUploadAvatar } from '@/services/fileService'
@@ -125,8 +125,6 @@ const fetchUserData = async () => {
     const response = await getUserProfile() // API trả về dữ liệu người dùng
     Object.assign(profileData, mapUserProfileResponseToRequest(response))
     console.log('profileData', profileData)
-    profileData.profilePicture =
-      'http://localhost:5176/uploads/50360ee9-d3b5-4666-9e8e-59934736c151/images2.jpeg'
   } catch (error) {
     ElMessage.error('Failed to load user data') // Thông báo lỗi nếu không tải được dữ liệu
   }
@@ -216,7 +214,7 @@ function mapUserProfileResponseToRequest(response: UserProfileResponse): UserPro
     gender: response.gender,
     profilePicture: response.profilePicture ?? null, // Null-coalescing for optional fields
     bio: response.bio ?? null,
-    interests: response.interests ? response.interests.map((i) => i.interestName) : null, // Assuming Interest has a 'name' property
+    interests: response.interests ? response.interests.map((i) => i.id) : null, // Assuming Interest has a 'name' property
     longitude: response.location?.coordinates.x ?? null,
     latitude: response.location?.coordinates.y ?? null // Assuming coordinates in GeoJson2DCoordinates
   }

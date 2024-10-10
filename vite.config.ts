@@ -15,6 +15,11 @@ export default defineConfig({
         target: 'http://localhost:5176', // Địa chỉ API backend
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, '') // Xóa prefix /api trong URL
+      },
+      '/uploads': {
+        target: 'http://localhost:5176', // Server lưu trữ hình ảnh
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/images/, '') // Nếu cần xóa prefix /images
       }
     }
   },

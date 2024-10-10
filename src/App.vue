@@ -19,8 +19,12 @@
         <router-link to="/about">About</router-link>
       </el-menu-item>
 
-      <el-menu-item index="/dashboard">
-        <router-link to="/dashboard">Dashboard</router-link>
+      <el-menu-item index="/message">
+        <router-link to="/message">Message</router-link>
+      </el-menu-item>
+
+      <el-menu-item index="/list-message">
+        <router-link to="/list-message">Message</router-link>
       </el-menu-item>
       
       <el-menu-item index="/login" v-if="!authStore.isLoggedIn">

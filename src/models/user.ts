@@ -48,3 +48,12 @@ export interface UserProfileRequest {
     longitude?: number | null;
     latitude?: number | null;
 }
+
+export interface UserMessageResponse {
+  username: string;           // Required
+  firstname: string;          // Required
+  lastname: string;           // Required
+  gender: string;             // Required
+  lastActive?: Date | null;   // Optional (nullable in C#)
+  profilePicture?: string | null; // Optional (nullable in C#), path to profile picture
+}

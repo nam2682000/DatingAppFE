@@ -1,10 +1,20 @@
 // services/userService.ts
 import axiosInstance from './axiosConfig'
-import type { UserProfileRequest, UserProfileResponse } from '@/models/user'
+import type { UserMessageResponse, UserProfileRequest, UserProfileResponse } from '@/models/user'
 
 export const getUserProfile = async (): Promise<UserProfileResponse> => {
   try {
     const response = await axiosInstance.get<UserProfileResponse>('/user/my-profile')
+    return response.data
+  } catch (error) {
+    console.error('Error:', error)
+    throw new Error('Login failed.')
+  }
+}
+
+export const getUserMatch = async (): Promise<UserMessageResponse> => {
+  try {
+    const response = await axiosInstance.get<UserMessageResponse>('/user/user-match')
     return response.data
   } catch (error) {
     console.error('Error:', error)

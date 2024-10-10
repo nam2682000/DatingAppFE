@@ -1,6 +1,8 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import { useAuthStore } from '../stores/authStore'
+import MessageComponent from '@/components/Message/MessageComponent.vue';
+import ListMessageComponent from '@/components/Message/ListMessageComponent.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -39,10 +41,20 @@ const router = createRouter({
       meta: { requiresAuth: true },
       component: () => import('@/components/User/UserProfile.vue'),
     },
-    
+    {
+      path: '/message',
+      name: 'message',
+      meta: { requiresAuth: true },
+      component: MessageComponent,
+    },
+    {
+      path: '/list-message',
+      name: 'list-message',
+      meta: { requiresAuth: true },
+      component: ListMessageComponent,
+    },
   ]
 })
-
 
 // Navigation guard để kiểm tra xem người dùng có token hay không
 router.beforeEach((to, from, next) => {
