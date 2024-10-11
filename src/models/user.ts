@@ -50,6 +50,7 @@ export interface UserProfileRequest {
 }
 
 export interface UserMessageResponse {
+  id: string;           // Required
   username: string;           // Required
   firstname: string;          // Required
   lastname: string;           // Required

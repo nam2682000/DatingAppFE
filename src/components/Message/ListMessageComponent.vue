@@ -20,7 +20,8 @@
 
     <el-main v-if="selectedUser">
       <!-- Khu vực nhắn tin với người dùng được chọn -->
-      <h2>Nhắn tin với {{ selectedUser.firstname }} {{ selectedUser.lastname }}</h2>
+      <h2>Nhắn tin với {{ selectedUser.lastname }}</h2>
+      <MessageComponent :userClick="selectedUser"></MessageComponent>
       <!-- Nội dung tin nhắn, form nhắn tin, v.v. -->
     </el-main>
   </el-container>
@@ -30,43 +31,11 @@
 import type { UserMessageResponse } from '@/models/user'
 import { getUserMatch } from '@/services/userService'
 import { ElMessage } from 'element-plus'
-import { ref } from 'vue'
+import { onMounted, reactive, ref } from 'vue'
+import MessageComponent from './MessageComponent.vue';
 
-const fetchUserMatchData = async () => {
-  try {
-    const response = await getUserMatch() // API trả về dữ liệu người dùng
-    console.log('response', response)
-  } catch (error) {
-    ElMessage.error('Failed to load interest data') // Thông báo lỗi nếu không tải được dữ liệu
-  }
-}
 
-const users = ref<UserMessageResponse[]>([
-  {
-    username: 'user1',
-    firstname: 'John',
-    lastname: 'Doe',
-    gender: 'Male',
-    lastActive: new Date(),
-    profilePicture: 'path/to/avatar1.jpg'
-  },
-  {
-    username: 'user2',
-    firstname: 'Jane',
-    lastname: 'Doe',
-    gender: 'Female',
-    lastActive: null,
-    profilePicture: 'path/to/avatar2.jpg'
-  },
-  {
-    username: 'user3',
-    firstname: 'Alice',
-    lastname: 'Smith',
-    gender: 'Female',
-    lastActive: new Date(),
-    profilePicture: null // Không có ảnh đại diện
-  }
-])
+const users = reactive<UserMessageResponse[]>([])
 
 // Người dùng được chọn
 const selectedUser = ref<UserMessageResponse | null>(null)
@@ -75,10 +44,25 @@ const selectedUser = ref<UserMessageResponse | null>(null)
 const selectUser = (user: UserMessageResponse) => {
   selectedUser.value = user
 }
+
+const fetchUserMatchData = async () => {
+  try {
+    const response = await getUserMatch() // API trả về dữ liệu người dùng
+    users.push(...response);
+    console.log('response', response)
+  } catch (error) {
+    ElMessage.error('Failed to load interest data') // Thông báo lỗi nếu không tải được dữ liệu
+  }
+}
+
+onMounted(()=>{
+  fetchUserMatchData();
+  
+})
 // Hàm định dạng thời gian hoạt động cuối cùng
 const formatLastActive = (lastActive: Date | null) => {
   return lastActive
-    ? `Hoạt động cuối: ${lastActive.toLocaleDateString()}`
+    ? `Hoạt động cuối: ${lastActive}`
     : 'Không rõ hoạt động cuối'
 }
 </script>

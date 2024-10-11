@@ -2,11 +2,11 @@
   <div class="chat-container">
     <div class="messages" ref="messageBox">
       <div
-        v-for="(msg, index) in messages"
+        v-for="(msg, index) in messageData.messages"
         :key="index"
-        :class="['message', msg.sentByMe ? 'sent' : 'received']"
+        :class="['message', msg.senderId == userCurrent ? 'sent' : 'received']"
       >
-        <div class="message-content">{{ msg.text }}</div>
+        <div class="message-content">{{ msg.content }}</div>
       </div>
     </div>
 
@@ -24,21 +24,44 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, nextTick, onUnmounted } from 'vue'
+import { ref, onMounted, nextTick, onUnmounted, watch, reactive } from 'vue'
+import type { UserMessageResponse } from '@/models/user';
 import * as signalR from '@microsoft/signalr'
 import { useAuthStore } from '@/stores/authStore'
+import { defineProps } from 'vue';
+import { getMessageByUser } from '@/services/messageService';
+import type { ChatResponse, Message } from '@/models/message';
 
+// Define the props with the expected type
+
+const props = defineProps<{
+  userClick: UserMessageResponse;
+}>();
+
+watch(() => props.userClick, async (newValue) => {
+  targetUser.value = newValue.id
+  messageData.value = await getMessageByUser(targetUser.value)
+  console.log(messageData)
+});
 // State để lưu trữ nội dung tin nhắn và danh sách tin nhắn
 const messageContent = ref('')
-const messages = ref([
-  { text: 'Hi! How are you?', sentByMe: false, fromUserId: 'notme' },
-  { text: 'I am good, thanks! You?', sentByMe: true, fromUserId: 'me' }
-])
+const messageData = ref<ChatResponse>({
+  messages: [],
+  user: {
+    id: '',
+    username: '',
+    firstname: '',
+    lastname: '',
+    gender: '',
+    lastActive: '',
+    profilePicture: '',
+  },
+});
 // Lấy tham chiếu đến hộp tin nhắn để cuộn xuống cuối khi có tin nhắn mới
 const messageBox = ref()
 const authStore = useAuthStore()
 const userCurrent = authStore.user?.userId
-const targetUser = ref('662d7556-7109-46df-bd7f-5ee6faac6907') // ID của user nhận
+const targetUser = ref(props.userClick.id) // ID của user nhận
 
 let connection: any = null
 // Kết nối tới SignalR Hub
@@ -57,12 +80,8 @@ const connectSignalR = async () => {
   }
 
   // Lắng nghe sự kiện nhận tin nhắn từ server
-  connection.on('ReceiveMessage', (fromUserId: string, message: string) => {
-    messages.value.push({
-      fromUserId: fromUserId,
-      text: message,
-      sentByMe: false
-    })
+  connection.on('ReceiveMessage', (messages:Message) => {
+    messageData.value.messages.push(messages)
   })
 }
 
@@ -77,10 +96,12 @@ const sendMessage = async () => {
         targetUser.value,
         messageContent.value
       )
-      messages.value.push({
-        fromUserId: userCurrent ?? '',
-        text: messageContent.value,
-        sentByMe: true
+      messageData.value.messages.push({
+        id:'',
+        senderId: userCurrent ?? '',
+        content: messageContent.value,
+        receiverId: targetUser.value,
+        messageAt:''
       })
       messageContent.value = ''
     } catch (err) {
@@ -88,10 +109,10 @@ const sendMessage = async () => {
     }
   }
 }
-
 // Kết nối SignalR khi component được mount
-onMounted(() => {
-  connectSignalR()
+onMounted(async () => {
+  connectSignalR();
+  messageData.value = await getMessageByUser(props.userClick.id)
 })
 
 // Ngắt kết nối SignalR khi component bị hủy

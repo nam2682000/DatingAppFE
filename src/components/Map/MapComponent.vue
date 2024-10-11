@@ -6,7 +6,7 @@
 </template>
 
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { onBeforeUnmount, onMounted } from 'vue'
 import axios from 'axios'
 import type { LatLngTuple } from 'leaflet'
 import L from 'leaflet'

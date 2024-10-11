@@ -101,7 +101,7 @@ import { userUploadAvatar } from '@/services/fileService'
 
 const authStore = useAuthStore()
 // Khởi tạo object cho form dữ liệu
-const profileData = reactive<UserProfileRequest>({
+const profileData = ref<UserProfileRequest>({
   username: '',
   firstname: '',
   lastname: '',
@@ -116,14 +116,14 @@ const profileData = reactive<UserProfileRequest>({
 })
 const optionsInterest = reactive<InterestResponse[]>([])
 const handleLocationUpdate = (newLocation: { x: number; y: number }) => {
-  profileData.latitude = newLocation.y
-  profileData.longitude = newLocation.x
+  profileData.value.latitude = newLocation.y
+  profileData.value.longitude = newLocation.x
 }
 // Hàm giả lập gọi API để lấy dữ liệu user (Bạn cần thay thế bằng API thực tế)
 const fetchUserData = async () => {
   try {
     const response = await getUserProfile() // API trả về dữ liệu người dùng
-    Object.assign(profileData, mapUserProfileResponseToRequest(response))
+    profileData.value = mapUserProfileResponseToRequest(response);
     console.log('profileData', profileData)
   } catch (error) {
     ElMessage.error('Failed to load user data') // Thông báo lỗi nếu không tải được dữ liệu
@@ -144,7 +144,7 @@ const fetchInterestData = async () => {
 const updateProfile = async () => {
   try {
     console.log('profileData', profileData)
-    const response = await updateUserProfile(profileData) // Gửi dữ liệu cập nhật
+    const response = await updateUserProfile(profileData.value) // Gửi dữ liệu cập nhật
     if (response) ElMessage.success('Profile updated successfully') // Thông báo thành công
   } catch (error) {
     ElMessage.error('Failed to update profile') // Thông báo lỗi nếu có

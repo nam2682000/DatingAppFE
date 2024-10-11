@@ -42,12 +42,6 @@ const router = createRouter({
       component: () => import('@/components/User/UserProfile.vue'),
     },
     {
-      path: '/message',
-      name: 'message',
-      meta: { requiresAuth: true },
-      component: MessageComponent,
-    },
-    {
       path: '/list-message',
       name: 'list-message',
       meta: { requiresAuth: true },

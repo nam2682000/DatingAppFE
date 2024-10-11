@@ -14,13 +14,9 @@
       <el-menu-item index="/">
         <router-link to="/">Home</router-link>
       </el-menu-item>
-
+      
       <el-menu-item index="/about">
         <router-link to="/about">About</router-link>
-      </el-menu-item>
-
-      <el-menu-item index="/message">
-        <router-link to="/message">Message</router-link>
       </el-menu-item>
 
       <el-menu-item index="/list-message">
@@ -38,7 +34,7 @@
               <el-avatar
                 class=""
                 :size="32"
-                src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png"
+                :src="userProfile?.profilePicture"
               />
             </div>
           </template> 
@@ -57,22 +53,35 @@
 import { onMounted, ref, watch } from 'vue'
 import { useAuthStore } from './stores/authStore'
 import { useRoute } from 'vue-router'
+import { getUserProfile } from './services/userService';
+import { ElMessage } from 'element-plus';
+import type { UserProfileResponse } from './models/user';
 
 
 const route = useRoute()
 // Khởi tạo auth store
-const authStore = useAuthStore();
-
+const authStore = useAuthStore()
 const activeIndex = ref(route.path)
+const userProfile = ref<UserProfileResponse>()
 const handleSelect = (key: string, keyPath: string[]) => {
   console.log(key, keyPath)
 }
 
+const fetchUserData = async () => {
+  try {
+    const response = await getUserProfile() // API trả về dữ liệu người dùng
+    userProfile.value = response
+    console.log('profileData', userProfile)
+  } catch (error) {
+    ElMessage.error('Failed to load user data') // Thông báo lỗi nếu không tải được dữ liệu
+  }
+}
 
 onMounted(() => {
-  const authStore = useAuthStore();
+  const authStore = useAuthStore()
   authStore.initializeAuth(); // Khôi phục trạng thái từ localStorage
   console.log(authStore.isTokenExpired)
+  fetchUserData()
   if (authStore.isTokenExpired && authStore.isLoggedIn) {
     authStore.logout();
     window.location.href = '/login';

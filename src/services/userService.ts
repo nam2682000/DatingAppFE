@@ -12,9 +12,9 @@ export const getUserProfile = async (): Promise<UserProfileResponse> => {
   }
 }
 
-export const getUserMatch = async (): Promise<UserMessageResponse> => {
+export const getUserMatch = async (): Promise<UserMessageResponse[]> => {
   try {
-    const response = await axiosInstance.get<UserMessageResponse>('/user/user-match')
+    const response = await axiosInstance.get<UserMessageResponse[]>('/user/user-match')
     return response.data
   } catch (error) {
     console.error('Error:', error)
