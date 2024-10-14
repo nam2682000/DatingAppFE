@@ -47,6 +47,12 @@ const router = createRouter({
       meta: { requiresAuth: true },
       component: ListMessageComponent,
     },
+    {
+      path: '/checker',
+      name: 'checker',
+      meta: { requiresAuth: true },
+      component: () => import('@/components/SwipeCard/SwipeCardComponent.vue'),
+    },
   ]
 })
 

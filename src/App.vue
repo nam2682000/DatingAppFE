@@ -41,6 +41,11 @@
           <el-menu-item>
             <router-link to="/profile">Profile</router-link>
           </el-menu-item>
+
+          <el-menu-item>
+            <router-link to="/checker">Checker</router-link>
+          </el-menu-item>
+
           <el-menu-item index="/logout" @click="logout"> Logout </el-menu-item>
         </el-sub-menu>
       </div>
