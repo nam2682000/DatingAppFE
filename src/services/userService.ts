@@ -22,9 +22,9 @@ export const getUserMatch = async (): Promise<UserMessageResponse[]> => {
   }
 }
 
-export const getNewUser = async (): Promise<UserMessageResponse> => {
+export const getNewUser = async (): Promise<UserProfileResponse> => {
   try {
-    const response = await axiosInstance.get<UserMessageResponse>('/user/get-new-user')
+    const response = await axiosInstance.get<UserProfileResponse>('/user/get-new-user')
     return response.data
   } catch (error) {
     console.error('Error:', error)
@@ -34,7 +34,7 @@ export const getNewUser = async (): Promise<UserMessageResponse> => {
 
 export const userLikeUser = async (userLikeeId: string): Promise<boolean> => {
   try {
-    const response = await axiosInstance.post<boolean>('user/user-like', userLikeeId)
+    const response = await axiosInstance.post<boolean>('user/user-like', { userLikeeId })
     return response.data // Trả về dữ liệu nếu đăng nhập thành công
   } catch (error) {
     console.error('Login error:', error)
@@ -44,7 +44,7 @@ export const userLikeUser = async (userLikeeId: string): Promise<boolean> => {
 
 export const userNextUser = async (userNextId: string): Promise<boolean> => {
   try {
-    const response = await axiosInstance.post<boolean>('user/user-next', userNextId)
+    const response = await axiosInstance.post<boolean>('user/user-next', { userNextId })
     return response.data // Trả về dữ liệu nếu đăng nhập thành công
   } catch (error) {
     console.error('Login error:', error)
