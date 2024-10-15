@@ -20,9 +20,9 @@
 </template>
 
 <script setup lang="ts">
-import type { UserProfileResponse } from '@/models/user'
-import { getNewUser, userLikeUser, userNextUser } from '@/services/userService'
 import { onMounted, ref } from 'vue'
+import type { UserProfileResponse } from '../../models/user'
+import { getNewUser, userLikeUser, userNextUser } from '../../services/userService'
 
 onMounted(async () => {
   const newUser = await getNewUser()
@@ -40,7 +40,7 @@ const like = async () => {
 
 const dislike = () => {
   // Xử lý sự kiện "Bỏ qua" (Vuốt trái)
-  console.log(`Disliked: `)
+  console.log(`Disliked:`)
   userNextUser(currentUser.value?.id ?? '')
   nextUser()
 }
@@ -67,7 +67,6 @@ const startDragging = (event: any) => {
 const onDragging = (event: any) => {
   if (isDragging.value) {
     offsetX.value = event.clientX - startX.value // Tính khoảng cách kéo
-
     // Thay đổi opacity khi kéo xa hơn
     opacityValue.value = 1 - Math.abs(offsetX.value) / 300
   }

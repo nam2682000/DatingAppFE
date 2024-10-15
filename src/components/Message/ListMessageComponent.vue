@@ -32,8 +32,7 @@ import type { UserMessageResponse } from '@/models/user'
 import { getUserMatch } from '@/services/userService'
 import { ElMessage } from 'element-plus'
 import { onMounted, reactive, ref } from 'vue'
-import MessageComponent from './MessageComponent.vue';
-
+import MessageComponent from './MessageComponent.vue'
 
 const users = reactive<UserMessageResponse[]>([])
 
@@ -48,22 +47,19 @@ const selectUser = (user: UserMessageResponse) => {
 const fetchUserMatchData = async () => {
   try {
     const response = await getUserMatch() // API trả về dữ liệu người dùng
-    users.push(...response);
+    users.push(...response)
     console.log('response', response)
   } catch (error) {
     ElMessage.error('Failed to load interest data') // Thông báo lỗi nếu không tải được dữ liệu
   }
 }
 
-onMounted(()=>{
-  fetchUserMatchData();
-  
+onMounted(() => {
+  fetchUserMatchData()
 })
 // Hàm định dạng thời gian hoạt động cuối cùng
 const formatLastActive = (lastActive: Date | null) => {
-  return lastActive
-    ? `Hoạt động cuối: ${lastActive}`
-    : 'Không rõ hoạt động cuối'
+  return lastActive ? `Hoạt động cuối: ${lastActive}` : 'Không rõ hoạt động cuối'
 }
 </script>
 

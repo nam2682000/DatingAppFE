@@ -14,7 +14,7 @@
       <el-menu-item index="/">
         <router-link to="/">Home</router-link>
       </el-menu-item>
-      
+
       <el-menu-item index="/about">
         <router-link to="/about">About</router-link>
       </el-menu-item>
@@ -22,7 +22,11 @@
       <el-menu-item index="/list-message">
         <router-link to="/list-message">Message</router-link>
       </el-menu-item>
-      
+
+      <el-menu-item index="/checker">
+        <router-link to="/checker">Checker</router-link>
+      </el-menu-item>
+
       <el-menu-item index="/login" v-if="!authStore.isLoggedIn">
         <router-link to="/login">Login</router-link>
       </el-menu-item>
@@ -31,21 +35,12 @@
         <el-sub-menu>
           <template #title>
             <div class="flex items-center">
-              <el-avatar
-                class=""
-                :size="32"
-                :src="userProfile?.profilePicture"
-              />
+              <el-avatar class="" :size="32" :src="userProfile?.profilePicture" />
             </div>
-          </template> 
+          </template>
           <el-menu-item>
             <router-link to="/profile">Profile</router-link>
           </el-menu-item>
-
-          <el-menu-item>
-            <router-link to="/checker">Checker</router-link>
-          </el-menu-item>
-
           <el-menu-item index="/logout" @click="logout"> Logout </el-menu-item>
         </el-sub-menu>
       </div>
@@ -58,10 +53,9 @@
 import { onMounted, ref, watch } from 'vue'
 import { useAuthStore } from './stores/authStore'
 import { useRoute } from 'vue-router'
-import { getUserProfile } from './services/userService';
-import { ElMessage } from 'element-plus';
-import type { UserProfileResponse } from './models/user';
-
+import { getUserProfile } from './services/userService'
+import { ElMessage } from 'element-plus'
+import type { UserProfileResponse } from './models/user'
 
 const route = useRoute()
 // Khởi tạo auth store
@@ -83,26 +77,40 @@ const fetchUserData = async () => {
 }
 
 onMounted(() => {
-  const authStore = useAuthStore()
-  authStore.initializeAuth(); // Khôi phục trạng thái từ localStorage
-  console.log(authStore.isTokenExpired)
-  fetchUserData()
+  const authStore = useAuthStore() // Lấy store quản lý trạng thái xác thực
+
+  authStore.initializeAuth() // Khôi phục trạng thái đăng nhập từ localStorage
+
   if (authStore.isTokenExpired && authStore.isLoggedIn) {
-    authStore.logout();
-    window.location.href = '/login';
-  }
-});
-// Theo dõi sự thay đổi của route và cập nhật activeIndex
-watch(() => route.path, (newPath) => {
-  console.log('newPath',newPath);
-  if (newPath === '/' || newPath === '/home' || newPath === '') {
-    // Nếu đường dẫn là '/', '/home' hoặc chuỗi rỗng '', đặt activeIndex thành '/'
-    activeIndex.value = '/';
-  } else {
-    // Với các đường dẫn khác, đặt activeIndex thành đường dẫn hiện tại
-    activeIndex.value = newPath;
+    // Nếu token đã hết hạn và người dùng vẫn đăng nhập, thực hiện đăng xuất
+    authStore.logout()
+    window.location.href = '/login' // Chuyển hướng tới trang đăng nhập
   }
 })
+
+// Theo dõi sự thay đổi của route và cập nhật activeIndex
+watch(
+  () => route.path,
+  (newPath) => {
+    console.log('newPath', newPath)
+    if (newPath === '/' || newPath === '/home' || newPath === '') {
+      // Nếu đường dẫn là '/', '/home' hoặc chuỗi rỗng '', đặt activeIndex thành '/'
+      activeIndex.value = '/'
+    } else {
+      // Với các đường dẫn khác, đặt activeIndex thành đường dẫn hiện tại
+      activeIndex.value = newPath
+    }
+  }
+)
+
+watch(
+  () => authStore.isLoggedIn,
+  (newAuthStore) => {
+    if (newAuthStore) {
+      fetchUserData()
+    }
+  }
+)
 
 // Hàm logout
 const logout = () => {

@@ -1,8 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import { useAuthStore } from '../stores/authStore'
-import MessageComponent from '@/components/Message/MessageComponent.vue';
-import ListMessageComponent from '@/components/Message/ListMessageComponent.vue';
+import ListMessageComponent from '@/components/Message/ListMessageComponent.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -33,37 +32,43 @@ const router = createRouter({
       path: '/about',
       name: 'about',
       meta: { requiresAuth: true },
-      component: () => import('@/views/AboutView.vue'),
+      component: () => import('@/views/AboutView.vue')
     },
     {
       path: '/profile',
       name: 'profile',
       meta: { requiresAuth: true },
-      component: () => import('@/components/User/UserProfile.vue'),
+      component: () => import('@/components/User/UserProfile.vue')
     },
     {
       path: '/list-message',
       name: 'list-message',
       meta: { requiresAuth: true },
-      component: ListMessageComponent,
+      component: ListMessageComponent
     },
     {
       path: '/checker',
       name: 'checker',
       meta: { requiresAuth: true },
-      component: () => import('@/components/SwipeCard/SwipeCardComponent.vue'),
-    },
+      component: () => import('@/components/SwipeCard/SwipeCardComponent.vue')
+    }
   ]
 })
 
 // Navigation guard để kiểm tra xem người dùng có token hay không
 router.beforeEach((to, from, next) => {
-  const authStore = useAuthStore();
+  const authStore = useAuthStore() // Lấy store quản lý trạng thái xác thực
+
   if (to.meta.requiresAuth && !authStore.isLoggedIn) {
-    next({ name: 'login', query: { returnUrl: to.fullPath } }); // Chuyển đến trang đăng nhập nếu chưa đăng nhập
+    // Nếu route yêu cầu xác thực mà người dùng chưa đăng nhập
+    next({
+      name: 'login',
+      query: { returnUrl: to.fullPath } // Chuyển hướng đến trang đăng nhập
+    })
   } else {
-    next(); // Tiếp tục đi đến route yêu cầu
+    // Nếu người dùng đã đăng nhập hoặc route không yêu cầu xác thực
+    next() // Tiếp tục chuyển đến route
   }
-});
+})
 
 export default router
