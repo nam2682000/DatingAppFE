@@ -1,0 +1,21 @@
+version: '3'
+services:
+  vue-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - '5173:5173' # Mở cổng 8080 để truy cập ứng dụng qua HTTP
+    volumes:
+      - .:/app
+      - /app/node_modules
+    restart: always
+
+  # Nếu bạn triển khai API server cùng lúc với Vue app
+  # api:
+  #   image: your-api-image # Thay bằng hình ảnh API của bạn (nếu có)
+  #   environment:
+  #     - ASPNETCORE_ENVIRONMENT=Production # Đặt môi trường cho API
+  #   ports:
+  #     - '5176:5176' # Mở cổng 5176 cho API server
+  #   restart: always
