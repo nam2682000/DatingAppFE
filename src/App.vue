@@ -56,6 +56,7 @@ import { useRoute } from 'vue-router'
 import { getUserProfile } from './services/userService'
 import { ElMessage } from 'element-plus'
 import type { UserProfileResponse } from './models/user'
+import axios from 'axios'
 
 const route = useRoute()
 // Khởi tạo auth store

@@ -1,32 +1,29 @@
-# Bước 1: Build ứng dụng bằng Vite
-FROM node:16-alpine as build-stage
+# 1. Base image
+FROM node:20 AS build
 
-# Thiết lập thư mục làm việc
+# 2. Set working directory inside container
 WORKDIR /app
 
-# Copy file package.json và package-lock.json (nếu có)
+# 3. Copy package.json and package-lock.json (if available)
 COPY package*.json ./
 
-# Cài đặt các dependencies
+# 4. Install dependencies
 RUN npm install
 
-# Copy toàn bộ mã nguồn vào container
+# 5. Copy all project files
 COPY . .
 
-# Build ứng dụng Vue 3
+# 6. Build the project
 RUN npm run build
 
-# Bước 2: Thiết lập Nginx để phục vụ ứng dụng
-FROM nginx:alpine as production-stage
+# 7. Nginx to serve built static files
+FROM nginx:alpine AS production
 
-# Copy các file đã build từ bước trước vào thư mục phục vụ của Nginx
-COPY --from=build-stage /app/dist /usr/share/nginx/html
+# 8. Copy built files from previous stage to Nginx folder
+COPY --from=build /app/dist /usr/share/nginx/html
 
-# Copy file cấu hình Nginx từ project của bạn vào Nginx container
-COPY ./nginx/default.conf /etc/nginx/conf.d/default.conf
-
-# Mở cổng 80 để phục vụ ứng dụng qua HTTP
+# 9. Expose port 80
 EXPOSE 80
 
-# Chạy Nginx trong chế độ foreground
+# 10. Start Nginx server
 CMD ["nginx", "-g", "daemon off;"]
