@@ -9,6 +9,16 @@ services:
       - '5173:80'
     networks:
       - dating-app-network
+  nginx:
+    image: nginx:alpine
+    container_name: nginx-proxy
+    volumes:
+      - ./dist:/usr/share/nginx/html
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf # Gắn file cấu hình Nginx
+    ports:
+      - '80:80' # Expose port 80
+    networks:
+      - dating-app-network
 
 networks:
   dating-app-network:
