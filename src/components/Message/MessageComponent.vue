@@ -70,7 +70,7 @@ let connection: any = null
 // Kết nối tới SignalR Hub
 const connectSignalR = async () => {
   connection = new signalR.HubConnectionBuilder()
-    .withUrl('http://localhost:5176/chatHub', {
+    .withUrl(`http://datingappbe:5176/chatHub`, {
       accessTokenFactory: () => localStorage.getItem('token') ?? ''
     })
     .configureLogging(signalR.LogLevel.Information)
