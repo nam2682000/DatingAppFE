@@ -1,10 +1,9 @@
 version: '3.8'
 services:
-  vue-app:
+  dating-app-fe:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: datingAppFe
     ports:
       - '5173:80'
     networks:
