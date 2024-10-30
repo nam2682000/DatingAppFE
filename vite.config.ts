@@ -8,18 +8,18 @@ export default defineConfig({
     alias: {
       '@': path.resolve(__dirname, './src') // Alias @ trỏ về thư mục src
     }
+  },
+  server: {
+    proxy: {
+      '/api': {
+        target: 'http://localhost:5176', // Địa chỉ API backend
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, '') // Xóa prefix /api trong URL
+      },
+      '/uploads': {
+        target: 'http://localhost:5176', // Server lưu trữ hình ảnh
+        changeOrigin: true
+      }
+    }
   }
-  // server: {
-  //   proxy: {
-  //     '/api': {
-  //       target: 'http://localhost:5176', // Địa chỉ API backend
-  //       changeOrigin: true,
-  //       rewrite: (path) => path.replace(/^\/api/, '') // Xóa prefix /api trong URL
-  //     },
-  //     '/uploads': {
-  //       target: 'http://localhost:5176', // Server lưu trữ hình ảnh
-  //       changeOrigin: true
-  //     }
-  //   }
-  // }
 })

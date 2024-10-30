@@ -11,9 +11,9 @@
     "composite": true,
     "noEmit": true,
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.node.tsbuildinfo",
-
-    "module": "ESNext",
-    "moduleResolution": "Bundler",
-    "types": ["node"]
+    "module": "esnext", // Đúng để sử dụng import.meta
+    "moduleResolution": "node", // Phù hợp với cách TypeScript tìm kiếm modules
+    "target": "esnext", // Đúng cho các tính năng mới nhất của JavaScript
+    "types": ["vite/client"] // Bao gồm loại cho Vite
   }
 }

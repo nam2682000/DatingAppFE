@@ -54,9 +54,9 @@
 <script setup lang="ts">
 import { reactive, ref } from 'vue'
 import { ElMessage } from 'element-plus'
-import type { UserRegisterRequest } from '@/models/auth';
-import { register } from '@/services/authService';
-import { useRouter } from 'vue-router';
+import type { UserRegisterRequest } from '@/models/auth'
+import { register } from '@/services/authService'
+import { useRouter } from 'vue-router'
 
 // Reactive state for the form
 const form = reactive<UserRegisterRequest>({
@@ -99,16 +99,16 @@ const rules = reactive({
   ]
 })
 
-const router = useRouter();
+const router = useRouter()
 const signupFormRef = ref() // Reference to the form
 
 // Handle form submission
 const onSubmit = () => {
   signupFormRef.value?.validate(async (valid: boolean) => {
     if (valid) {
-      const check = await register(form);
-      if(check){
-        ElMessage.success('Registration successful!');
+      const check = await register(form)
+      if (check) {
+        ElMessage.success('Registration successful!')
         router.push('/login')
       }
     } else {
@@ -121,8 +121,6 @@ const onSubmit = () => {
 const onReset = () => {
   signupFormRef.value?.resetFields()
 }
-
-
 </script>
 
 <style scoped>

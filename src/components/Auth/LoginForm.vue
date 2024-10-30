@@ -31,14 +31,12 @@
           <el-form-item>
             <el-link href="/signup" type="primary" class="forgot-passWord">Signup</el-link>
           </el-form-item>
-          
+
           <el-form-item>
             <el-link href="#" type="primary" class="forgot-passWord">Forgot Password?</el-link>
           </el-form-item>
-          
         </div>
         <!-- Forgot Password Link -->
-        
       </el-form>
     </el-card>
   </div>
@@ -48,13 +46,12 @@
 import { reactive, ref } from 'vue'
 import { ElMessage, type FormInstance } from 'element-plus'
 import { useAuthStore } from '@/stores/authStore'
-import { useRoute, useRouter } from 'vue-router';
-import { login } from '@/services/authService';
-import type { LoginRequest } from '@/models/auth';
+import { useRoute, useRouter } from 'vue-router'
+import { login } from '@/services/authService'
+import type { LoginRequest } from '@/models/auth'
 
-
-const router = useRouter();
-const route = useRoute();
+const router = useRouter()
+const route = useRoute()
 // Khai báo biến form
 const loginForm = reactive<LoginRequest>({
   userName: '',
@@ -83,12 +80,11 @@ const handleLogin = () => {
   loginFormRef.value?.validate(async (valid: boolean) => {
     if (valid) {
       const userData = await login(loginForm)
-      if (userData) 
-      {
+      if (userData) {
         authStore.login(userData)
-        ElMessage.success('Login successful!');
-        const returnUrl = route.query.returnUrl as string || '/home';
-        router.push(returnUrl);
+        ElMessage.success('Login successful!')
+        const returnUrl = (route.query.returnUrl as string) || '/home'
+        router.push(returnUrl)
       }
     } else {
       ElMessage.error('Invalid form, please check your input.')

@@ -1,4 +1,4 @@
 export interface InterestResponse {
-    id: string
-    interestName: string
-};
+  id: string
+  interestName: string
+}

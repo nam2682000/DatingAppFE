@@ -70,8 +70,12 @@ let connection: any = null
 // Kết nối tới SignalR Hub
 const connectSignalR = async () => {
   connection = new signalR.HubConnectionBuilder()
-    .withUrl(`http://host.docker.internal:5176/chatHub`, {
-      accessTokenFactory: () => localStorage.getItem('token') ?? ''
+    .withUrl(`${import.meta.env.VITE_API_URL}/chatHub/`, {
+      accessTokenFactory: () => localStorage.getItem('token') ?? '',
+      transport:
+        signalR.HttpTransportType.WebSockets |
+        signalR.HttpTransportType.ServerSentEvents |
+        signalR.HttpTransportType.LongPolling
     })
     .configureLogging(signalR.LogLevel.Information)
     .build()

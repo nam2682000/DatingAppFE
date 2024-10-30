@@ -92,7 +92,7 @@ import { ElMessage } from 'element-plus'
 import { getUserProfile, updateUserProfile } from '@/services/userService'
 import type { UserProfileRequest, UserProfileResponse } from '@/models/user'
 import { useAuthStore } from '@/stores/authStore'
-import MapComponent from '../Map/MapComponent.vue' 
+import MapComponent from '../Map/MapComponent.vue'
 import { getAllInterest } from '@/services/interestService'
 import type { InterestResponse } from '@/models/interest'
 import { userUploadAvatar } from '@/services/fileService'
@@ -123,7 +123,7 @@ const handleLocationUpdate = (newLocation: { x: number; y: number }) => {
 const fetchUserData = async () => {
   try {
     const response = await getUserProfile() // API trả về dữ liệu người dùng
-    profileData.value = mapUserProfileResponseToRequest(response);
+    profileData.value = mapUserProfileResponseToRequest(response)
     console.log('profileData', profileData)
   } catch (error) {
     ElMessage.error('Failed to load user data') // Thông báo lỗi nếu không tải được dữ liệu
