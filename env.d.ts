@@ -9,7 +9,7 @@ declare module '*.env' {
 interface ImportMetaEnv {
   readonly VITE_API_URL: string
   readonly VITE_APP_TITLE: string
-  // Thêm các biến khác nếu cần
+  readonly VITE_BASE_URL: string
 }
 
 interface ImportMeta {
