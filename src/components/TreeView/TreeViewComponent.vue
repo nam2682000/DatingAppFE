@@ -1,70 +1,59 @@
 <template>
   <li>
-    <div :class="{ bold: isFolder }" @click="toggle" @dblclick="changeType">
+    <div
+      :class="{ bold: isBold(model.id) }"
+      @click="clickItem(model.id)"
+      @dblclick="changeType(model.id)"
+    >
       {{ model.name }}
-      <span v-if="isFolder">[{{ isOpen ? '-' : '+' }}]</span>
-      <span @click="deleleteItem(model.id)">[X]</span>
+      <span v-if="isFolder">[{{ model.isOpen ? '-' : '+' }}]</span>
+      <span @click.stop="deleteItem(model.id)">[X]</span>
     </div>
-    <ul v-show="isOpen" v-if="isFolder">
-      <TreeViewComponent class="item" v-for="model in model.children" :model="model">
-      </TreeViewComponent>
-      <li class="add" @click="addChild">+</li>
+    <ul v-show="model.isOpen" v-if="isFolder">
+      <TreeViewComponent
+        v-for="child in model.children"
+        :key="child.id"
+        :model="child"
+        :tree-selected="treeSelected"
+        @add-item="addItem"
+        @delete-item="deleteItem"
+        @click-item="clickItem"
+      />
+      <li class="add" @click="addItem(model.id)">+</li>
     </ul>
   </li>
 </template>
 
-<script setup>
-import { ref, computed } from 'vue'
+<script setup lang="ts">
+import type { TreeSelected } from '@/models/tree'
+import { computed, defineProps, defineEmits, onMounted } from 'vue'
 
-const props = defineProps({
-  model: Object
-})
-
-const isOpen = ref(false)
-const isFolder = computed(() => {
-  return props.model.children && props.model.children.length
-})
-
-const deleleteItem = (id) => {
-  alert(id)
-  removeNodeById(props.model, id)
+interface TreeNode {
+  id: number
+  name: string
+  children?: TreeNode[]
+  isOpen: boolean
 }
-function toggle() {
-  isOpen.value = !isOpen.value
+const props = defineProps<{
+  model: TreeNode
+  treeSelected: TreeSelected[]
+}>()
+
+onMounted(() => {})
+const emit = defineEmits(['deleteItem', 'addItem', 'clickItem'])
+const isFolder = computed(() => !!props.model.children?.length)
+const isBold = (id: number) => computed(() => !!props.treeSelected.find((m) => m.id === id))
+
+const clickItem = (id: number) => {
+  emit('clickItem', id)
+  console.log('props.treeSelected', props.treeSelected)
 }
-
-function changeType() {
-  if (!isFolder.value) {
-    props.model.children = []
-    addChild()
-    isOpen.value = true
-  }
+const changeType = (id: number) => {
+  addItem(id)
+  clickItem(id)
 }
-
-function addChild() {
-  props.model.children.push({ name: 'new stuff' })
-  console.log('props', props.model)
-}
-
-function removeNodeById(tree, idToRemove) {
-  // Tìm phần tử có idToRemove
-  for (let i = 0; i < tree.length; i++) {
-    const node = tree[i]
-
-    // Nếu tìm thấy node với idToRemove, xóa nó và dừng lại
-    if (node.id === idToRemove) {
-      tree.splice(i, 1) // Xóa node này khỏi mảng
-      break // Dừng việc lặp qua cây
-    }
-
-    // Nếu node có children, xử lý tiếp trong children
-    if (node.children) {
-      removeNodeById(node.children, idToRemove)
-    }
-  }
-
-  return tree
-}
+const deleteItem = (id: number) => emit('deleteItem', id)
+const addItem = (idParent: number) => emit('addItem', idParent)
 </script>
 
 <style>

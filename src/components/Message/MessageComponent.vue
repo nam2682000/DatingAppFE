@@ -24,7 +24,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, watch } from 'vue'
+import { onMounted, onUnmounted, watch, ref } from 'vue'
 import type { UserMessageResponse } from '@/models/user'
 import * as signalR from '@microsoft/signalr'
 import { useAuthStore } from '@/stores/authStore'
@@ -114,6 +114,8 @@ const sendMessage = async () => {
 onMounted(async () => {
   connectSignalR()
   messageData.value = await getMessageByUser(props.userClick.id)
+  const box = messageBox.value
+  box.scrollTop = box.scrollHeight
 })
 
 // Ngắt kết nối SignalR khi component bị hủy
@@ -121,12 +123,6 @@ onUnmounted(() => {
   if (connection) {
     connection.stop()
   }
-})
-
-// Cuộn xuống cuối khi component được mount lần đầu
-onMounted(() => {
-  const box = messageBox.value
-  box.scrollTop = box.scrollHeight
 })
 </script>
 
