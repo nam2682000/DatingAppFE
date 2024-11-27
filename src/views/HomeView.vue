@@ -16,7 +16,9 @@
           ></TreeViewComponent>
         </ul>
       </div>
-      <div class="w-50">asdas</div>
+      <div class="w-50">
+        <div v-for="item in [...treeSelected].reverse()" :key="item.id">{{ item.name }}</div>
+      </div>
     </div>
   </main>
 </template>
