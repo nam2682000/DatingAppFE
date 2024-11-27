@@ -7,6 +7,7 @@
             v-for="data in treeData"
             class="item"
             :model="data"
+            :parent="null"
             :tree-selected="treeSelected"
             :key="data.id"
             @add-item="addItem"
@@ -21,8 +22,8 @@
 </template>
 
 <script setup lang="ts">
-import { onBeforeMount, reactive, ref, watch } from 'vue'
-import TreeViewComponent from '@/components/TreeView/TreeViewComponent.vue'
+import { onBeforeMount, ref } from 'vue'
+import TreeViewComponent, { type TreeNode } from '@/components/TreeView/TreeViewComponent.vue'
 import type { TreeSelected, TreeView } from '@/models/tree'
 
 const dataFromApi = [
@@ -78,13 +79,10 @@ const dataFromApi = [
   }
 ]
 
-const treeData = reactive<TreeView[]>([])
+const treeData = ref<TreeView[]>([])
 const treeSelected = ref<TreeSelected[]>([])
+const prevTreeSelected = ref<TreeSelected[]>([])
 
-watch(treeData, (newValue, oldValue) => {
-  console.log(`newValue changed`, newValue)
-  console.log(`treeData changed`, oldValue)
-})
 onBeforeMount(() => {
   if (Array.isArray(dataFromApi)) {
     const addIsOpen = (node: any): TreeView => {
@@ -96,41 +94,52 @@ onBeforeMount(() => {
       return newNode
     }
     const data: TreeView[] = dataFromApi.map(addIsOpen) // Thêm isOpen cho tất cả các node
-    treeData.push(...data)
+    treeData.value.push(...data)
   }
 })
 
-const addItem = (idParent: number) => {
-  addNodeByIdParent(treeData, idParent)
+const addItem = (parent: TreeNode) => {
+  const newNode: TreeView = {
+    id: Date.now(), // Giả lập id duy nhất
+    name: `Node ${Date.now()}`,
+    isOpen: false,
+    children: []
+  }
+  parent.children?.push(newNode)
 }
 
-const deleteItem = (id: number) => {
-  let result = removeNodeById(treeData, id)
-  alert(result)
+const deleteItem = (parent: TreeNode | null, id: number) => {
+  if (parent) {
+    const indexRemove = parent.children?.findIndex((m) => m.id === id) ?? -1
+    parent.children?.splice(indexRemove, 1)
+  } else {
+    treeData.value = treeData.value.filter((m) => m.id !== id)
+  }
 }
 
 const clickItem = (id: number) => {
   treeSelected.value = []
-  togetherItem(treeData, id)
+  togetherItem(treeData.value, id)
+  prevTreeSelected.value = treeSelected.value
+  console.log('props.treeSelected', treeSelected.value)
 }
 
 const togetherItem = (tree: TreeView[], idClick: number): boolean => {
   let hasFound = false
+  const isClick = !!prevTreeSelected.value.find((m) => m.id === idClick)
   for (let i = 0; i < tree.length; i++) {
     const node = tree[i]
     if (node.id === idClick) {
-      node.isOpen = !node.isOpen // Đảo trạng thái
       const treeCurrent: TreeSelected = {
         id: node.id,
         name: node.name
       }
-      hasFound = true // Đã tìm thấy node
-      if (!node.isOpen) {
-        // Đóng toàn bộ node con nếu trạng thái là đóng
+      hasFound = true
+      node.isOpen = isClick ? !node.isOpen : true
+      if (node.isOpen) {
+        treeSelected.value.push(treeCurrent)
+      } else {
         closeAllChildren(node.children)
-      }
-      if ((!node.isOpen && !node.children) || node.isOpen) {
-        treeSelected.value.push(treeCurrent) // Thêm chính nó
       }
       return true // Dừng ngay khi đã xử lý node
     }
@@ -157,46 +166,6 @@ const closeAllChildren = (children: TreeView[] | undefined): void => {
     child.isOpen = false // Đóng node hiện tại
     closeAllChildren(child.children) // Đệ quy đóng các node con
   }
-}
-const removeNodeById = (tree: TreeView[], idToRemove: number): boolean => {
-  for (let i = 0; i < tree.length; i++) {
-    const node = tree[i]
-    if (node.id === idToRemove) {
-      tree.splice(i, 1) // Xóa node
-      return true // Kết thúc sau khi xóa
-    }
-
-    // Đệ quy kiểm tra trong children
-    if (node.children && removeNodeById(node.children, idToRemove)) {
-      return true
-    }
-  }
-  return false // Không tìm thấy idToRemove
-}
-
-const addNodeByIdParent = (tree: TreeView[], idParent: number): boolean => {
-  const newNode: TreeView = {
-    id: Date.now(), // Giả lập id duy nhất
-    name: `Node ${Date.now()}`,
-    isOpen: false,
-    children: []
-  }
-  for (let i = 0; i < tree.length; i++) {
-    const node = tree[i]
-    if (node.id === idParent) {
-      if (node.children && node.children.length > 0) {
-        node.children.push(newNode)
-      } else {
-        node.children = [newNode]
-      }
-      break
-    }
-    // Đệ quy kiểm tra trong children
-    if (node.children) {
-      addNodeByIdParent(node.children, idParent)
-    }
-  }
-  return false // Không tìm thấy idToRemove
 }
 </script>
 
