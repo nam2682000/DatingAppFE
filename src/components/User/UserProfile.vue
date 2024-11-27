@@ -87,7 +87,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, reactive, watch } from 'vue'
+import { ref, onMounted, reactive } from 'vue'
 import { ElMessage } from 'element-plus'
 import { getUserProfile, updateUserProfile } from '@/services/userService'
 import type { UserProfileRequest, UserProfileResponse } from '@/models/user'
